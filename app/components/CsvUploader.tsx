@@ -72,7 +72,7 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10 w-full max-w-xl px-4 py-8 text-center text-white">
         <h1 className="text-4xl font-bold mb-2">شكراً لحضوركم</h1>
-        <h2 className="text-2xl font-semibold mb-6">"دورة إدارة المشاريع الاحترافية بإستخدام الذكاء الاصطناعي"</h2>
+        <h2 className="text-2xl font-semibold mb-6">&quot;دورة إدارة المشاريع الاحترافية بإستخدام الذكاء الاصطناعي&quot;</h2>
         <p className="text-xl mb-8">قم بملء بياناتك لتحصل على شهادتك</p>
 
         <form onSubmit={handleUserSubmit} className="space-y-6">
