@@ -17,4 +17,6 @@ model Certificate {
   email     String   @unique
   date      DateTime
   createdAt DateTime @default(now())
+
+  @@map("certificates") // Explicit table name mapping
 }
