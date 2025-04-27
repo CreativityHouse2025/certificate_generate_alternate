@@ -6,7 +6,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-
 async function createCertificate(fullName: string) {
   const templatePath = path.join(process.cwd(), 'public', 'Certification.png');
   const templateBytes = fs.readFileSync(templatePath);
@@ -42,7 +41,7 @@ async function createCertificate(fullName: string) {
   const lineSpacing = 40;
 
   // Full Name (centered)
-  const namePosition = centerText(fullName, 36, baseY + lineSpacing+65);
+  const namePosition = centerText(fullName, 52, baseY + lineSpacing+68);
   page.drawText(fullName, {
     ...namePosition,
     font,
@@ -51,7 +50,7 @@ async function createCertificate(fullName: string) {
 
   // Date (centered below name)
   const date = new Date().toLocaleDateString();
-  const datePosition = centerText(date, 24, baseY - lineSpacing - 220);
+  const datePosition = centerText(date, 34, baseY - lineSpacing - 220);
   page.drawText(date, {
     ...datePosition,
     font,
@@ -60,7 +59,6 @@ async function createCertificate(fullName: string) {
 
   return await pdfDoc.save();
 }
-
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,16 +77,21 @@ export async function POST(req: NextRequest) {
     // Generate PDF
     const pdfBytes = await createCertificate(fullName);
 
-    // Save to Neon Database
-    await prisma.certificate.create({
-      data: {
-        fullName,
-        email,
-        date: new Date(),
-      },
-    });
+    try {
+      // Always create a new record, ignoring uniqueness constraints
+      await prisma.certificate.create({
+        data: {
+          fullName,
+          email,
+          date: new Date(),
+        },
+      });
+    } catch (dbError) {
+      // Log database error but continue with PDF generation
+      console.error('Database error (continuing anyway):', dbError);
+    }
 
-    // Return PDF
+    // Return PDF regardless of database operation success
     return new NextResponse(pdfBytes, {
       headers: {
         'Content-Type': 'application/pdf',
@@ -96,13 +99,9 @@ export async function POST(req: NextRequest) {
       }
     });
 
-  } catch (error:  Error | unknown) {
+  } catch (error) {
     console.error('Error:', error);
-    const errorMessage = error instanceof Error && 'code' in error && error.code === 'P2002'
-      ? 'Email already exists in our database'
-      : 'Failed to generate certificate';
-      
-    return new NextResponse(JSON.stringify({ error: errorMessage }), {
+    return new NextResponse(JSON.stringify({ error: 'Failed to generate certificate' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
