@@ -6,8 +6,8 @@ import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Certificate Generator",
-  description: "Generate your certificate",
+  title: "احصل على شهادتك",
+  description: "احصل على شهادة الحضور المقدمة من Creativity House",
 }
 
 export default function RootLayout({
